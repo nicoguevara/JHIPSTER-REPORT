@@ -1,0 +1,167 @@
+entity Pais {
+	descripcion String required,
+    idFe Long
+}
+
+entity Provincia {
+	descripcion String required
+}
+
+entity Localidad{
+	descripcion String required
+}
+
+entity Distrito{
+	descripcion String required,
+    codigoPostal String required
+}
+
+entity TipoDomicilio {
+	descripcion String required
+}
+
+entity Domicilio {
+	calle String required,
+    numero Long required,
+    piso String,
+    departamento String,
+    referencia String,
+    idFe Long
+}
+
+entity TipoContacto {
+	descripcion String required
+}
+
+entity Contacto {
+	descripcion String required,
+    idFe Long
+}
+
+enum TipoPersona {
+	FISICA, JURIDICA
+}
+
+entity Persona {
+	nombre String required,
+    apellido String,
+    cuit Long required,
+    dni Long,
+    fechaNac LocalDate,
+    tipoPersona TipoPersona
+}
+
+entity Empleo{
+	empresa String,
+    cargo String,
+    legajo String,
+    sueldo Double,
+    fechaInicio ZonedDateTime
+}
+entity EstadoCliente {
+	descripcion String required,
+    bloqueado Boolean
+}
+
+entity Cliente {
+	descripcion String
+}
+
+entity Sucursal {
+	descripcion String required,
+    idFe Long
+}
+
+entity Empresa {
+	cuit Long required,
+	descripcion String required
+}
+
+entity TipoCredito{
+	descripcion String required,
+    cuotas Integer required,
+    interes Double required,
+    prorrogado Boolean
+}
+
+entity Credito{
+	fecha ZonedDateTime required,
+    monto Double required,
+    comision Double,
+    gastosAdmin Double,
+    descripcion String,
+    cuotas Integer,
+    fechaBaja ZonedDateTime
+}
+
+entity DetalleCredito{
+	cuota Integer required,
+    monto Double required,
+    fechaVenc ZonedDateTime required
+}
+
+entity Recibo{
+	fecha ZonedDateTime required,
+    fechaPago ZonedDateTime,
+    monto Double required,
+    interes Double required,
+    impuesto Double,
+    observaciones String,
+    fechaBaja ZonedDateTime,
+    detalleCreditoId Long
+}
+
+entity Caja {
+	fecha ZonedDateTime required,
+    monto Double required
+}
+
+entity CondIva{
+	descripcion String required
+}
+
+entity Tabgral{
+	interesVenc Double required,
+    comision Double required,
+    impuesto Double required
+}
+
+relationship OneToMany {
+	Empresa{sucursales} to Sucursal{empresa},
+    Sucursal{cajas} to Caja{sucursal},
+    Sucursal{creditos} to Credito{sucursal},
+    Sucursal{recibos} to Recibo{sucursal},
+    Pais{provincias} to Provincia{pais},
+    Provincia{localidades} to Localidad{provincia},
+    Localidad{distritos} to Distrito{localidad},
+    Distrito{domicilios} to Domicilio{distrito},
+    TipoDomicilio{domicilios} to Domicilio{tipoDomicilio},
+    TipoContacto{contactos} to Contacto{tipoContacto},
+    EstadoCliente{clientes} to Cliente{estadoCliente},
+    Cliente{creditos} to Credito{cliente},
+    CondIva{clientes} to Cliente{condIva},
+    Persona{empleos} to Empleo{persona},
+    Caja{recibos} to Recibo{caja},
+    Credito{detalleCredito} to DetalleCredito{credito},
+    TipoCredito{creditos} to Credito{tipoCredito},
+    Tabgral{creditos} to Credito{tabgral},
+    Tabgral{recibos} to Recibo{tabgral},
+    DetalleCredito{recibos} to Recibo{detalleCredito}
+}
+
+relationship OneToOne {
+	Cliente{persona} to Persona{cliente}
+}
+
+relationship ManyToMany{
+	Persona{domicilio} to Domicilio{persona},
+    Persona{contacto} to Contacto{persona},
+    Sucursal{domicilio} to Domicilio{sucursal},
+    Sucursal{contacto} to Contacto{sucursal}
+}
+
+// Set pagination options
+paginate Cliente, Caja,	Credito, Recibo, Distrito with pagination
+
+// Set service options to all except few
+service all with serviceImpl
